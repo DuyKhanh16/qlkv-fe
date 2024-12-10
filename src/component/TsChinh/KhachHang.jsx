@@ -77,7 +77,7 @@ export default function KhachHang() {
   });
 
   const columns = [
-    { field: "id", headerName: "ID", width: 30 },
+    { field: "id", headerName: "STT", width: 30 ,valueGetter: (params) => rowSelectionModel?.findIndex((e)=>e.id == params)+1 },
     { field: "name", headerName: "Tên Khách Hàng", width: 150 },
     { field: "abbreviation", headerName: "Tến Viết Tắt", width: 130 },
     {
@@ -282,7 +282,6 @@ export default function KhachHang() {
       showSnackbar(error.response.data.message, "error");
     }
   };
-  console.log(user);
   return (
     <div>
       {/* Group button */}

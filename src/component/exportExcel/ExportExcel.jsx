@@ -2,7 +2,6 @@ import React from 'react'
 import { Button } from 'react-bootstrap'
 import * as XLSX from "xlsx";
 export default function ExportExcel({columnsForExcel,datatExcel,excelName,headersExport}) {
-    console.log(columnsForExcel)
     const handleExportExcel = () => {
         // Tạo dữ liệu từ mảng ban đầu với các cột cần thiết
         const formattedData = datatExcel?.map((item) => {
