@@ -41,7 +41,7 @@ export default function Login() {
     
         // Chuyển hướng về trang chủ
         setTimeout(() => {
-          window.location.href = "/";
+          window.location.href = "/KhachHang";
         }, 2500);
       }
     } catch (error) {

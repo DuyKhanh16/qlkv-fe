@@ -171,6 +171,7 @@ const NAVIGATION = [
       branding={{
         logo: null,
         title: "Danh Mục",
+        // onClick: () => navigate("/KhachHang"),
       }}
       theme={demoTheme}
       window={demoWindow}
