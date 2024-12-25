@@ -23,7 +23,6 @@ export default function Login() {
       // Gửi yêu cầu đăng nhập
       const result = await publicAxios.post("/auth/api/user/login", userLogin);
      
-    console.log(result)
       // Kiểm tra mã trạng thái (status)
       if (result.status === 200) {
         // Lưu token vào cookie

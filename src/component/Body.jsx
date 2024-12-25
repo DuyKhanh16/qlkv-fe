@@ -59,6 +59,12 @@ const NAVIGATION = [
       onClick: (navigate) => navigate('/LoaiPhi'),
     },
     {
+      segment: 'LoaiDieuChinh',
+      title: 'Loại giao dịch điều chỉnh',
+      icon: <DashboardIcon />,
+      onClick: (navigate) => navigate('/LoaiDieuChinh'),
+    },
+    {
       kind: 'header',
       title: 'Giao dịch',
     },

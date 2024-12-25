@@ -11,7 +11,6 @@ export default function ExportExcel({columnsForExcel,datatExcel,excelName,header
             });
             return row;
           });
-          console.log("sau")
        // Tạo worksheet từ dữ liệu
     const worksheet = XLSX.utils.json_to_sheet(formattedData);
 
@@ -27,7 +26,7 @@ export default function ExportExcel({columnsForExcel,datatExcel,excelName,header
     <div>
          <Button variant="warning" onClick={handleExportExcel}>
           {" "}
-          <i className="fa-solid fa-file-excel"></i> Export Danh sách Khách Hàng{" "}
+          <i className="fa-solid fa-file-excel"></i> Export Danh sách {excelName}{" "}
         </Button>
     </div>
   )

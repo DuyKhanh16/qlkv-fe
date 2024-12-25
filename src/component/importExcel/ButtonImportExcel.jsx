@@ -68,7 +68,10 @@ export default function ButtonImportExcel({columnsForExcel,saveExcel}) {
         columns={columns}
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[5, 10]}
-        getRowId={(row) => row.busRegist}
+        getRowId={(row) =>{ 
+        const rowLoad=columnsForExcel[0];
+          return row[rowLoad];
+        }}
         checkboxSelection={columns.length==0?false:true}
 
         sx={{ border: 0 }}

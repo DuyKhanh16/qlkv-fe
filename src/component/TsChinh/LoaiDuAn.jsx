@@ -29,7 +29,13 @@ export default function LoaiDuAn() {
 
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () =>{
+    setTypeProject({
+      typeDesc: "",
+    name: "",
+    inputedUser: JSON.parse(Cookies.get("loginData")).loginName,
+    })
+     setOpen(false)};
 
   const [typeProject, setTypeProject] = useState({
     typeDesc: "",
@@ -67,23 +73,52 @@ export default function LoaiDuAn() {
     if(typeProject.typeDesc==""){
       typeProject.typeDesc=typeProject.name
     }
-    console.log(typeProject)
     try {
       const result = await privateAxios.post("api/type-project/create", typeProject);
-      console.log(result)
       showSnackbar(result.data, "success");
      setTimeout(() => {
-      setOpen(false);
+      handleClose();
       setFlag(!flag);
      }, 2100);
-      // setTimeout(() => {
-      //   window.location.reload();
-      // }, 2100);
+  
     } catch (error) {
       console.log(error)
       showSnackbar(error.response.data, "error");
     }
   }
+
+  const handleDelete = async () => {
+    if (!window.confirm("Xác nhận xóa dự án")) {
+      return;
+    }
+    try {
+      const result = await privateAxios.post("api/type-project/delete", checkBoxRow);
+      showSnackbar(result.data, "success");
+      setFlag(!flag);
+    } catch (error) {
+      showSnackbar(error.response.data.message, "error");
+    }
+  }
+
+ const openEdit = () =>{
+    const data = dataRender.find(e => e.id == checkBoxRow[0]);
+    setTypeProject(data);
+    handleOpen();
+ }
+
+ const handleEdit = async () => {
+  if (!window.confirm("Cập nhật loại dự án này?")) {
+    return;
+  }
+   try {
+    const result = await privateAxios.patch("api/type-project/update-one", typeProject);
+    showSnackbar(result.data.message, "success");
+    handleClose();
+    setFlag(!flag);
+   } catch (error) {
+    showSnackbar(error.response.data.message, "error");
+   }
+ }
   return (
     <div>
        <div className="flex items-center w-full h-[40px] ">
@@ -94,8 +129,8 @@ export default function LoaiDuAn() {
       </div>
       <div className="flex gap-2 items-center">
       <Button   style={{ display: checkBoxRow.length == 1 ? "none" : "block" }}  onClick={handleOpen} variant="success"><i className="fa-solid fa-folder-plus"></i> Tạo Mới</Button>
-      <Button style={{ display: checkBoxRow.length == 1 ? "block" : "none" }} variant="warning"  >   <i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa</Button>
-      <Button style={{ display: checkBoxRow.length > 0 ? "block" : "none" }} variant="danger"><i className="fa-solid fa-trash"></i> Xóa bỏ</Button>
+      <Button style={{ display: checkBoxRow.length == 1 ? "block" : "none" }} variant="warning" onClick={openEdit} >   <i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa</Button>
+      <Button style={{ display: checkBoxRow.length > 0 ? "block" : "none" }} variant="danger" onClick={handleDelete}><i className="fa-solid fa-trash" ></i> Xóa bỏ</Button>
       </div>
 
       <div>
@@ -158,7 +193,7 @@ export default function LoaiDuAn() {
               style={{ margin: "10px", width: "100%" }}
             />
            { checkBoxRow.length ==1 ?
-            <Button style={{ width: "20%" ,marginLeft:"280px",marginTop:"20px" }} variant="warning">{" "} <i class="fa-solid fa-floppy-disk"></i> Sửa</Button>
+            <Button style={{ width: "20%" ,marginLeft:"280px",marginTop:"20px" }} variant="warning" onClick={handleEdit}>{" "} <i class="fa-solid fa-floppy-disk"></i> Sửa</Button>
             :
             <Button onClick={createNewType} style={{ width: "20%" ,marginLeft:"280px",marginTop:"20px" }} variant="success">{" "} <i class="fa-solid fa-floppy-disk"></i> Lưu</Button>
            }

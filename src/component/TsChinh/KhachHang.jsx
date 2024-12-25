@@ -23,6 +23,7 @@ import ButtonImportExcel from "../importExcel/ButtonImportExcel";
 import { Opacity } from "@mui/icons-material";
 import { display } from "@mui/system";
 import ExportExcel from "../exportExcel/ExportExcel";
+import ExportTempalet from "../exportExcel/ExportTempalet";
 
 const style = {
   position: "absolute",
@@ -164,6 +165,7 @@ export default function KhachHang() {
 
   // tạo user bằng tay
   const createUser = async () => {
+    if(!window.confirm("Thêm mới khách hàng này")){return;}
     if (
       user.name === "" ||
       user.abbreviation === "" ||
@@ -327,6 +329,7 @@ export default function KhachHang() {
             saveExcel={handeleSaveExel}
           />
           <ExportExcel columnsForExcel={columnsExcel}  datatExcel={rowSelectionModel} headersExport={headersExport} excelName={"Khách Hàng"}/>
+          <ExportTempalet nameFile={"Khách_Hàng"}/>
         </div>
         <Button variant="none" className="ml-auto">
           <i
@@ -479,7 +482,7 @@ export default function KhachHang() {
                   <DatePicker
                     value={
                       user.dateOfBirth
-                        ? dayjs(user.dateOfBirth.toString())
+                        ? dayjs(user.dateOfBirth.toString(),"MM/DD/YYYY")
                         : null
                     }
                     label={
@@ -520,7 +523,7 @@ export default function KhachHang() {
               <DemoContainer components={["DatePicker"]}>
                 <DatePicker
                   value={
-                    user.dateOfIssue ? dayjs(user.dateOfIssue.toString()) : null
+                    user.dateOfIssue ? dayjs(user.dateOfIssue.toString(),"MM/DD/YYYY") : null
                   }
                   label={
                     <span>
