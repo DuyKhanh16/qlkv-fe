@@ -15,6 +15,9 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
 import { useSnackbar } from "../../ultit/SnackbarProvider";
+import ExportTempalet from "../exportExcel/ExportTempalet";
+import ButtonImportExcel from "../importExcel/ButtonImportExcel";
+import ExportExcel from "../exportExcel/ExportExcel";
 
 const style = {
   position: "absolute",
@@ -47,7 +50,7 @@ export default function KhoanVay() {
       field: "loanId",
       headerName: "STT",
       width: 70,
-      valueGetter: (params) => dataRender?.findIndex((e) => e.id == params) + 1,
+      valueGetter: (params) => dataRender?.findIndex((e) => e.loanId === params) + 1,
     },
     { field: "contractNo", headerName: "Số hợp đồng", width: 130 },
     { field: "borrOwer", headerName: "Bên vay vốn", width: 200 },
@@ -95,29 +98,13 @@ export default function KhoanVay() {
     { field: "mangUser", headerName: "Cán bộ QL khoản vay", width: 90 },
     { field: "loanStatus", headerName: "Trạng thái", width: 90 },
   ];
-
   const [loan, setLoan] = useState({
-    loanId: 0,
     contractNo: loanNoTatal,
     borrowerId: 0,
     lenderId: 0,
     usedCapId: 0,
     contractType: "",
     projectId1: 0,
-    projectId2: 0,
-    projectId3: 0,
-    projectId4: 0,
-    projectId5: 0,
-    projectId6: 0,
-    projectId7: 0,
-    projectId8: 0,
-    projectId9: 0,
-    projectId10: 0,
-    projectId11: 0,
-    projectId12: 0,
-    projectId13: 0,
-    projectId14: 0,
-    projectId15: 0,
     loanName: "",
     purposeId1: null,
     purposeId2: null,
@@ -126,35 +113,40 @@ export default function KhoanVay() {
     purposeId5: null,
     purposeId6: null,
     purposeId7: null,
-    loanAmountPurpose1: null,
-    loanAmountPurpose2: null,
-    loanAmountPurpose3: null,
-    loanAmountPurpose4: null,
-    loanAmountPurpose5: null,
-    loanAmountPurpose6: null,
-    loanAmountPurpose7: null,
+    loanAmountPurpose1: 0,
+    loanAmountPurpose2: 0,
+    loanAmountPurpose3: 0,
+    loanAmountPurpose4: 0,
+    loanAmountPurpose5: 0,
+    loanAmountPurpose6: 0,
+    loanAmountPurpose7: 0,
     fromDate: null,
     endDate: null,
     loanAmount: null,
     ccy: "VND",
-    kindPriPenatyRate: null,
-    kindIntPenatyRate: null,
-    dayBasis: "",
     loanStatus: "",
     comment: "",
     mangUser: "",
-    inputedDate: null,
     inputedUser: JSON.parse(Cookies.get("loginData")).loginName,
     loanPeriod: "",
     equityCapital: null,
-    bankName: "",
     interestRate1: null,
     descriptionInterestRate: "",
-    fee1: null,
-    fee2: null,
-    fee3: null,
+    fee1: 0,
+    fee2: 0,
+    fee3: 0,
     description: "",
   });
+  const columnsExcel = [
+    "contractNo", "borrowerID", "lenderID", "usedCapID", "contractType", "projectID1", "purposeID1", "loanAmountPurpose1", "purposeID2", "loanAmountPurpose2", "purposeID3", "loanAmountPurpose3", "purposeID4", "loanAmountPurpose4", "purposeID5", "loanAmountPurpose5", "purposeID6", "loanAmountPurpose6", "purposeID7", "loanAmountPurpose7", "loanAmount", "interestRate1", "descriptionInterestRate", "fee1", "fee2", "fee3",  "fromDate", "endDate", "equityCapital", "mangUser", "description", "loanName", "loanStatus" 
+  ]
+
+  const headersExport = [
+    "Số hợp đồng","Bên vay vốn","Bên cho vay","Bên sử dụng vốn", "Loại hợp đồng","Tên dự án","Ghi chú","Hạn mức giải ngân", "ĐV Tiền","Lãi xuất vay 1","Ghi chú về mức lãi xuất khoản vay","Phí khoản vay 1","Phí khoản vay 2","Phí khoản vay 3","Kỳ hạn","Ngày bắt đầu","Ngày kết thúc","Vốn tự có","Mô Tả","Cán bộ QL khoản vay","Trạng thái"
+  ]
+  const columnsExport = [
+    "contractNo","borrOwer","lender","usedCap","contractType","projectName","loanName","loanAmount","ccy","interestRate1","descriptionInterestRate","fee1","fee2","fee3","loanPeriod","fromDate","endDate","equityCapital","comment","mangUser","loanStatus"
+  ]
   const { showSnackbar } = useSnackbar();
   useEffect(() => {
     callDataRender();
@@ -164,7 +156,7 @@ export default function KhoanVay() {
   const callDataRender = async () => {
     try {
       const result = await privateAxios.get("api/loan/list", {
-        params: { userLogin: loginData.loginName },
+        params: { userLogin: loginData.loginName ,role: loginData.role},
       });
       setDataRender(result.data.data);
     } catch (error) {
@@ -217,7 +209,6 @@ export default function KhoanVay() {
   const handleClickOpen = () => {
     handleOpen();
     callCustomer();
-    // callProject();
     callUser();
     callLoanPurpose();
   };
@@ -254,6 +245,8 @@ export default function KhoanVay() {
         contractNo: `${borrOwer}-${lender}-${usedCap}-${projectNo}`,
       });
     }
+    if(loan.contractNo !=""){return}
+
   };
   function calculateRoundedMonths(startDate, endDate) {
 
@@ -267,13 +260,13 @@ export default function KhoanVay() {
 
     const timeDifference = end - start;
   const daysDifference = timeDifference / (1000 * 60 * 60 * 24); 
-    return ` ${Math.round(daysDifference/365 * 12)} M`;
+    return ` ${Math.round(daysDifference/365 * 12)}M`;
   }
   
   const handleCreateNewLoan = async () => {
     if(!window.confirm("Bạn có muốn tạo mới khoản vay?")){return}
-    if(loan.contractNo ==""||loan.loanAmount ==null||loan.purposeId1 ==null||loanAmountPurpose1 == null
-    ||loan.interestRate1==null||loan.fee1==null||loan.equityCapital==null||loan.mangUser==""||loan.loanPeriod==""){alert("Vui lòng nhập đầy đủ thông tin *");return}
+    if(loan.contractNo ==""||loan.loanAmount ==null||loan.purposeId1 ==null||loan.loanAmountPurpose1 == 0
+    ||loan.interestRate1==null||loan.equityCapital==null||loan.mangUser==""||loan.loanPeriod=="",loan.projectId1==0){alert("Vui lòng nhập đầy đủ thông tin *");return}
       try {
         const result = await privateAxios.post("api/loan/create-one", loan);
         showSnackbar(result.data.message, "success");
@@ -337,13 +330,84 @@ export default function KhoanVay() {
     fee3: null,
     description: "",
         })
+        setFlag(!flag);
       } catch (error) {
         console.log(error);
         showSnackbar(error.response.data.message, "error");
-        handleClose();
       }
   }
-  console.log(loan)
+  
+  
+  const handleOpenEdit = async () => {
+    try {
+      const result =  await privateAxios.get(`api/loan/get-one?id=${checkBoxRow[0]}`)
+      setLoan(result.data);
+     handleClickOpen();
+    } catch (error) {
+      console.log(error);
+    }
+   
+  }
+
+  const handleDelete = async () => {
+    if(!window.confirm("Xóa khoản vay?")){return;}
+    try {
+      const result = await privateAxios.post("api/loan/delete", checkBoxRow);
+      showSnackbar(result.data.message, "success");
+      setFlag(!flag);
+    } catch (error) {
+      showSnackbar(error.response.data.message, "error");
+    }
+  }
+  
+  // import excel 
+  const handeleSaveExel = async (dataExcel) => {
+    dataExcel.forEach(element => {
+      for (const key in element) {
+        switch (element[key]) {
+        
+          case "Hợp đồng không hạn mức":
+              element[key] = "N";
+              break;
+          case "Hợp đồng hạn mức":
+              element[key] = "R";
+              break;
+        
+      } 
+
+        if(key==="contractNo"&&element[key]===""){showSnackbar("Mã khoản vay không được để trống", "error");return;}
+        if(key==="borrowerID"&&element[key]===""){showSnackbar("Bên vay vốn không được để trống", "error");return}
+        if(key==="lenderID"&&element[key]===""){showSnackbar("Bên cho vay không được để trống", "error");return}
+        if(key==="usedCapID"&&element[key]===""){showSnackbar("Bên sử dụng vốn không được để trống", "error");return}
+        if(key==="purposeID1"&&element[key]===""){showSnackbar("Mục đích vay 1 không được để trống", "error");return}
+        if(key==="projectID1"&&element[key]===""){showSnackbar("Dự án không được để trống", "error");return}
+        if(key==="loanAmountPurpose1"&&element[key]===""){showSnackbar("Hạn mức giải ngân mục đích vay 1 không được để trống", "error");return}
+        if(key==="loanAmount"&&element[key]===""){showSnackbar("Hạn mức giải ngân không được để trống", "error");return}
+        if(key==="interestRate1"&&element[key]===""){showSnackbar("Lãi xuất vay không được để trống", "error");return}
+        if(key==="fee1"&&element[key]===""){showSnackbar("Phí khoản vay 1 không được để trống", "error");return}
+        if(key==="endDate"&&element[key]==""){showSnackbar("Ngày kết thúc không được để trống", "error");return}
+        if(key==="fromDate"&&element[key]==""){showSnackbar("Ngày bắt đầu không được để trống", "error");return}
+        if(key==="equityCapital"&&element[key]===""){showSnackbar("Vốn tự có không được để trống", "error");return}
+        if(key==="mangUser"&&element[key]===""){showSnackbar("Cán bộ quản lý không được để trống", "error");return}
+        if(key==="loanStatus"&&element[key]===""){showSnackbar("trạng thái không được để trống", "error");return}
+        if(key==="contractType"&&element[key]===""){showSnackbar("Loại hợp đồng không được để trống", "error");return}
+
+        if(element[key]==="")element[key]=null
+      }
+    })
+    if(!window.confirm("Nhập khoản vay?")){return;}
+    if(dataExcel.length==0){showSnackbar("Không có dữ liệu", "error");return;}
+    try {
+      const result = await privateAxios.post(`api/loan/import-excel?inputedUser=${loginData.loginName}`, dataExcel);
+      showSnackbar(result.data.message, "success");
+      setTimeout(() => {
+        window.location.reload();
+      }, 2100);
+    } catch (error) {
+      console.log(error);
+      showSnackbar(error.response.data.message, "error");
+    }
+  }
   return (
     <div>
       <div className="flex items-center w-full h-[40px] ">
@@ -365,6 +429,7 @@ export default function KhoanVay() {
           <Button
             variant="warning"
             style={{ display: checkBoxRow.length == 1 ? "block" : "none" }}
+            onClick={handleOpenEdit}
           >
             {" "}
             <i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa
@@ -373,6 +438,7 @@ export default function KhoanVay() {
         <Button
           variant="danger"
           style={{ display: checkBoxRow.length > 0 ? "block" : "none" }}
+          onClick={handleDelete}
         >
           {" "}
           <i className="fa-solid fa-trash"></i> Xóa bỏ
@@ -381,11 +447,12 @@ export default function KhoanVay() {
           className="flex gap-2 items-center"
           style={{ visibility: checkBoxRow.length > 0 ? "hidden" : "visible" }}
         >
-          {/* <ButtonImportExcel
+          <ButtonImportExcel
             columnsForExcel={columnsExcel}
-          /> */}
-          {/* <ExportExcel columnsForExcel={columnsExcel}  datatExcel={rowSelectionModel} headersExport={headersExport} excelName={"Khách Hàng"}/>
-          <ExportTempalet nameFile={"Khách_Hàng"}/> */}
+            saveExcel={handeleSaveExel}
+          />
+          <ExportExcel columnsForExcel={columnsExport}  datatExcel={dataRender} headersExport={headersExport} excelName={"Khoản vay"}/>
+          <ExportTempalet nameFile={"Khoản_vay"}/>
         </div>
         <Button variant="none" className="ml-auto">
           <i
@@ -423,7 +490,7 @@ export default function KhoanVay() {
           sx={{ border: 0 }}
         />
       </Paper>
-
+        {/* Modale tạo mới khoản vay */}
       <Modal
         open={open}
         onClose={handleClose}
@@ -454,6 +521,7 @@ export default function KhoanVay() {
                 Bên vay <span style={{ color: "red" }}>*</span>
               </p>
               <Select
+                //  value={loan.borrowerId}
                 onChange={(e) => setLoan({ ...loan, borrowerId: e.value })}
                 className="w-[620px]  mb-3"
                 placeholder={
@@ -507,15 +575,7 @@ export default function KhoanVay() {
                   label: item.name,
                 }))}
               />
-              <p>
-                Loại hợp đồng <span style={{ color: "red" }}>*</span>
-              </p>
-              <select className="w-[620px]  mb-3 h-[50px] border border-gray-400 p-1 rounded-md">
-                <option defaultValue={""}>Chọn loại hợp đồng</option>
-                <option value="R">Hợp đồng hạn mức</option>
-                <option value="N">Hợp đồng không hạn mức</option>
-              </select>
-              <p>
+               <p>
                 Dự án
               </p>
 
@@ -530,7 +590,7 @@ export default function KhoanVay() {
                 styles={{ menu: (base) => ({ ...base, zIndex: 9999 }) }}
                 placeholder={
                   <p>
-                    Dự án 
+                    Dự án <span style={{ color: "red" }}>*</span>
                   </p>
                 }
                 onMenuOpen={() => {
@@ -541,6 +601,15 @@ export default function KhoanVay() {
                   label: item.projectName,
                 }))}
               />
+              <p>
+                Loại hợp đồng <span style={{ color: "red" }}>*</span>
+              </p>
+              <select className="w-[620px]  mb-3 h-[50px] border border-gray-400 p-1 rounded-md">
+                <option defaultValue={""}>Chọn loại hợp đồng <span className="text-red-600">*</span></option>
+                <option value="R">Hợp đồng hạn mức</option>
+                <option value="N">Hợp đồng không hạn mức</option>
+              </select>
+             
             </div>
             <TextField
               label={
@@ -556,7 +625,7 @@ export default function KhoanVay() {
               style={{ margin: "10px", width: "100%" }}
             />
             <Select
-                onChange={(e) => setLoan({ ...loan, projectId1: e.value })}
+                onChange={(e) => setLoan({ ...loan, purposeId1: e.value })}
                 className="w-[620px] ml-3 mt-2 mb-2"
                 styles={{ menu: (base) => ({ ...base, zIndex: 9999 }) }}
                 placeholder={
@@ -578,7 +647,7 @@ export default function KhoanVay() {
                 </span>
               }
                type="number"
-              value={loan.loanAmountPurpose1}
+              value={loan.loanAmountPurpose1==0?null:loan.loanAmountPurpose1}
               onChange={(e) =>
                 setLoan({ ...loan, loanAmountPurpose1:Number(e.target.value)})
               }
@@ -602,7 +671,7 @@ export default function KhoanVay() {
               />
             <TextField
               label={<span>Hạn mức giải ngân mục đích vay 2(VND)</span>}
-              value={loan.loanAmountPurpose2}
+              value={loan.loanAmountPurpose2==0?null:loan.loanAmountPurpose2}
               onChange={(e) =>
                 setLoan({ ...loan, loanAmountPurpose2: Number(e.target.value) })
               }
@@ -627,7 +696,7 @@ export default function KhoanVay() {
               />
             <TextField
               label={<span>Hạn mức giải ngân mục đích vay 3(VND)</span>}
-              value={loan.loanAmountPurpose3}
+              value={loan.loanAmountPurpose3==0?null:loan.loanAmountPurpose3}
               onChange={(e) =>
                 setLoan({ ...loan, loanAmountPurpose3: Number(e.target.value) })
               }
@@ -652,7 +721,7 @@ export default function KhoanVay() {
               />
             <TextField
               label={<span>Hạn mức giải ngân mục đích vay 4(VND)</span>}
-              value={loan.loanAmountPurpose4}
+              value={loan.loanAmountPurpose4==0?null:loan.loanAmountPurpose4}
               onChange={(e) =>
                 setLoan({ ...loan, loanAmountPurpose4: Number(e.target.value)})
               }
@@ -677,7 +746,7 @@ export default function KhoanVay() {
               />
             <TextField
               label={<span>Hạn mức giải ngân mục đích vay 5(VND)</span>}
-              value={loan.loanAmountPurpose5}
+              value={loan.loanAmountPurpose5==0?null:loan.loanAmountPurpose5}
               onChange={(e) =>
                 setLoan({ ...loan, loanAmountPurpose5:Number(e.target.value)})
               }
@@ -702,7 +771,7 @@ export default function KhoanVay() {
               />
             <TextField
               label={<span>Hạn mức giải ngân mục đích vay 6(VND)</span>}
-              value={loan.loanAmountPurpose6}
+              value={loan.loanAmountPurpose6==0?null:loan.loanAmountPurpose6}
               onChange={(e) =>
                 setLoan({ ...loan, loanAmountPurpose6: Number(e.target.value) })
               }
@@ -728,7 +797,7 @@ export default function KhoanVay() {
 
             <TextField
               label={<span>Hạn mức giải ngân mục đích vay 7(VND)</span>}
-              value={loan.loanAmountPurpose7}
+              value={loan.loanAmountPurpose7 ==0?null:loan.loanAmountPurpose7}
               onChange={(e) =>
                 setLoan({ ...loan, loanAmountPurpose7: Number(e.target.value) })
               }
@@ -769,7 +838,7 @@ export default function KhoanVay() {
                 </span>
               }
                type="number"
-              value={loan.fee1}
+              value={loan.fee1==0?null:loan.fee1}
               onChange={(e) => setLoan({ ...loan, fee1: Number(e.target.value) })}
               multiline
               maxRows={4}
@@ -777,7 +846,7 @@ export default function KhoanVay() {
             />
             <TextField
               label={<span>Phí khoản vay 2</span>}
-              value={loan.fee2}
+              value={loan.fee2==0?null:loan.fee2}
               onChange={(e) => setLoan({ ...loan, fee2: Number(e.target.value) })}
               multiline
                type="number"
@@ -786,7 +855,7 @@ export default function KhoanVay() {
             />
             <TextField
               label={<span>Phí khoản vay 3</span>}
-              value={loan.fee3}
+              value={loan.fee3==0?null:loan.fee3}
               onChange={(e) => setLoan({ ...loan, fee3: Number(e.target.value) })}
               multiline
                type="number"

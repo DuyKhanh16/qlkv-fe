@@ -86,7 +86,7 @@ export default function KhachHang() {
       headerName: "Loại Khách Hàng",
       width: 130,
       valueGetter: (params) => {
-        return params == 1 ? "Tổ chức" : "Cá nhân";
+        return params == 2 ? "Tổ chức" : "Cá nhân";
       },
     },
     {
@@ -94,7 +94,7 @@ export default function KhachHang() {
       headerName: "Giới tính",
       width: 90,
       valueGetter: (params) => {
-        return params == 0 ? "" : params === 1 ? "Nam" : "Nữ";
+        return params == null ? "" : params === 1 ? "Nam" : "Nữ";
       },
     },
     { field: "dateOfBirth", headerName: "Ngày Sinh/Thành Lập", width: 130 },
@@ -409,14 +409,14 @@ export default function KhachHang() {
               }
             >
               <option> Loại Khách hàng *</option>
-              <option value="1"> Khách hàng tổ chức</option>
-              <option value="2"> Khách hàng cá nhân</option>
+              <option value="2"> Khách hàng tổ chức</option>
+              <option value="1"> Khách hàng cá nhân</option>
             </select>
             <p
               className="text-lg ml-3"
               style={{ display: checkBoxRow.length == 1 ? "block" : "none" }}
             >
-              Loại Khách Hàng: {user.customerType === 2 ? "Cá Nhân" : "Tổ chức"}
+              Loại Khách Hàng: {user.customerType === 1 ? "Cá Nhân" : "Tổ chức"}
             </p>
             <TextField
               label={

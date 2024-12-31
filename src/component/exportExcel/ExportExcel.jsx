@@ -16,7 +16,7 @@ export default function ExportExcel({columnsForExcel,datatExcel,excelName,header
 
     // Tạo workbook và thêm worksheet
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách khách hàng");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách " + excelName);
 
     // Ghi file Excel
     XLSX.writeFile(workbook, `${excelName}.xlsx`);
